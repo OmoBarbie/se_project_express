@@ -17,10 +17,11 @@ module.exports.getUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid user id';
+        const newErr = new Error('Invalid user id');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -31,10 +32,11 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid data passed to create user';
+        const newErr = new Error('Invalid data passed to create user');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -65,10 +67,11 @@ module.exports.updateProfile = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid data passed to update profile';
+        const newErr = new Error('Invalid data passed to update profile');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -88,9 +91,10 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid data passed to update avatar';
+        const newErr = new Error('Invalid data passed to update avatar');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };

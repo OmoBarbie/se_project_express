@@ -19,10 +19,11 @@ module.exports.createItem = (req, res, next) => {
     .then((item) => res.status(201).send(item))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid data passed to create item';
+        const newErr = new Error('Invalid data passed to create item');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -36,10 +37,11 @@ module.exports.deleteItem = (req, res, next) => {
     .then((item) => item.deleteOne().then(() => res.send(item)))
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid item id';
+        const newErr = new Error('Invalid item id');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -57,10 +59,11 @@ module.exports.likeItem = (req, res, next) => {
     .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid item id';
+        const newErr = new Error('Invalid item id');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -78,9 +81,10 @@ module.exports.dislikeItem = (req, res, next) => {
     .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.statusCode = BAD_REQUEST;
-        err.message = 'Invalid item id';
+        const newErr = new Error('Invalid item id');
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
       }
-      next(err);
+      return next(err);
     });
 };
