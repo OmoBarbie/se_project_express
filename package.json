@@ -1,31 +1,29 @@
 {
   "name": "se_project_express",
   "version": "1.0.0",
-  "description": "",
+  "description": "WTWR backend API built with Node.js, Express, and MongoDB",
   "main": "app.js",
   "author": "Omotayo Oluwole",
   "license": "ISC",
+  "type": "commonjs",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
     "lint": "eslint ."
-  }
-},
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tripleten-com/se_project_express.git"
+    "url": "git+https://github.com/OmoBarbie/se_project_express.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/tripleten-com/se_project_express/issues"
+    "url": "https://github.com/OmoBarbie/se_project_express/issues"
   },
-  "homepage": "https://github.com/tripleten-com/se_project_express#readme",
+  "homepage": "https://github.com/OmoBarbie/se_project_express#readme",
   "dependencies": {
     "express": "^4.22.1",
     "mongoose": "^8.23.0",
+    "package.json": "^2.0.1",
     "validator": "^13.15.26"
   },
   "devDependencies": {
