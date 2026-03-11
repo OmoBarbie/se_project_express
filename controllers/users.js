@@ -1,5 +1,5 @@
-const User = require("../models/user");
-const { BAD_REQUEST, NOT_FOUND } = require("../utils/errors");
+const User = require('../models/user');
+const { BAD_REQUEST, NOT_FOUND } = require('../utils/errors');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -10,15 +10,15 @@ module.exports.getUsers = (req, res, next) => {
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      const err = new Error("User not found");
+      const err = new Error('User not found');
       err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === 'CastError') {
         err.statusCode = BAD_REQUEST;
-        err.message = "Invalid user id";
+        err.message = 'Invalid user id';
       }
       next(err);
     });
@@ -30,9 +30,9 @@ module.exports.createUser = (req, res, next) => {
   User.create({ name, avatar })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         err.statusCode = BAD_REQUEST;
-        err.message = "Invalid data passed to create user";
+        err.message = 'Invalid data passed to create user';
       }
       next(err);
     });
@@ -41,7 +41,7 @@ module.exports.createUser = (req, res, next) => {
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      const err = new Error("User not found");
+      const err = new Error('User not found');
       err.statusCode = NOT_FOUND;
       throw err;
     })
@@ -58,15 +58,15 @@ module.exports.updateProfile = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      const err = new Error("User not found");
+      const err = new Error('User not found');
       err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         err.statusCode = BAD_REQUEST;
-        err.message = "Invalid data passed to update profile";
+        err.message = 'Invalid data passed to update profile';
       }
       next(err);
     });
@@ -81,15 +81,15 @@ module.exports.updateAvatar = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      const err = new Error("User not found");
+      const err = new Error('User not found');
       err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         err.statusCode = BAD_REQUEST;
-        err.message = "Invalid data passed to update avatar";
+        err.message = 'Invalid data passed to update avatar';
       }
       next(err);
     });

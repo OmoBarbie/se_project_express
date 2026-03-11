@@ -23,7 +23,6 @@
   "dependencies": {
     "express": "^4.22.1",
     "mongoose": "^8.23.0",
-    "package.json": "^2.0.1",
     "validator": "^13.15.26"
   },
   "devDependencies": {
