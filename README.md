@@ -1,71 +1,49 @@
 # WTWR (What to Wear?): Back End
 
-The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
+# WTWR Backend API
 
-## Running the Project
+## Project Description
 
-`npm run start` — to launch the server
+This project is the backend server for the WTWR (What to Wear) application. The server provides an API that manages users and clothing items. It connects to a MongoDB database and allows clients to create, retrieve, update, and delete data related to users and clothing items.
 
-`npm run dev` — to launch the server with the hot reload feature
+The backend is built with Node.js and Express and follows a RESTful API structure. It includes proper error handling, validation, and a modular folder structure for maintainability.
 
-### Testing
+## Functionality
 
-Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+The server provides the following functionality.
 
-Functionality
+### Users
 
-The server provides the following functionality:
+- Retrieve all users
+- Retrieve a specific user by ID
+- Create a new user
+- Retrieve the currently authenticated user
+- Update the current user's profile name
+- Update the current user's avatar
 
-Users:
+### Clothing Items
 
-Retrieve all users
+- Retrieve all clothing items
+- Create a new clothing item
+- Delete a clothing item
+- Like a clothing item
+- Unlike a clothing item
 
-Retrieve a specific user by ID
+### Error Handling
 
-Create a new user
+- Returns appropriate HTTP status codes
+- Handles invalid IDs
+- Handles invalid input data
+- Prevents deletion of items by users who do not own them
 
-Retrieve the currently authenticated user
-
-Update the current user's profile name
-
-Update the current user's avatar
-
-Clothing Items:
-
-Retrieve all clothing items
-
-Create a new clothing item
-
-Delete a clothing item
-
-Like a clothing item
-
-Unlike a clothing item
-
-Error Handling:
-
-Returns appropriate HTTP status codes
-
-Handles invalid IDs
-
-Handles invalid input data
-
-Prevents deletion of items by users who do not own them
-
-Technologies Used
+## Technologies Used
 
 This project uses the following technologies:
 
-Node.js
-
-Express.js
-
-MongoDB
-
-Mongoose
-
-ESLint (Airbnb configuration)
-
-Nodemon
-
-Validator package
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- ESLint with Airbnb configuration
+- Nodemon
+- Validator package
