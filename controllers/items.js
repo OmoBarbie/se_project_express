@@ -1,5 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, FORBIDDEN } = require("../utils/errors");
+const { BAD_REQUEST, NOT_FOUND } = require("../utils/errors");
 
 module.exports.getItems = (req, res, next) => {
   ClothingItem.find({})
@@ -33,15 +33,7 @@ module.exports.deleteItem = (req, res, next) => {
       err.statusCode = NOT_FOUND;
       throw err;
     })
-    .then((item) => {
-      if (item.owner.toString() !== req.user._id) {
-        const err = new Error("Forbidden: You cannot delete this item");
-        err.statusCode = FORBIDDEN;
-        throw err;
-      }
-
-      return item.deleteOne().then(() => res.send(item));
-    })
+    .then((item) => item.deleteOne().then(() => res.send(item)))
     .catch((err) => {
       if (err.name === "CastError") {
         err.statusCode = BAD_REQUEST;
