@@ -26,11 +26,4 @@ app.use((req, res) => {
   res.status(NOT_FOUND).send({ message: "Requested resource not found" });
 });
 
-app.use((req, res) => {
-  // next();
-  res.status(err.statusCode || INTERNAL_SERVER_ERROR).send({
-    message: err.message || "An error has occurred on the server.",
-  });
-});
-
 app.listen(PORT);
