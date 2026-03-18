@@ -1,5 +1,14 @@
-const User = require('../models/user');
-const { BAD_REQUEST, NOT_FOUND } = require('../utils/errors');
+const User = require("../models/user");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  CONFLICT,
+  UNAUTHORIZED,
+} = require("../utils/errors");
+
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET = "dev-secret" } = process.env;
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -10,14 +19,14 @@ module.exports.getUsers = (req, res, next) => {
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      const err = new Error('User not found');
+      const err = new Error("User not found");
       err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        const newErr = new Error('Invalid user id');
+      if (err.name === "CastError") {
+        const newErr = new Error("Invalid user id");
         newErr.statusCode = BAD_REQUEST;
         return next(newErr);
       }
@@ -26,24 +35,66 @@ module.exports.getUser = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const { name, avatar } = req.body;
+  const { name, avatar, email, password } = req.body;
 
-  User.create({ name, avatar })
-    .then((user) => res.status(201).send(user))
+  bcrypt
+    .hash(password, 10)
+    .then((hash) =>
+      User.create({
+        name,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
+    .then((user) => {
+      const userObject = user.toObject();
+      delete userObject.password;
+      res.status(201).send(userObject);
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const newErr = new Error('Invalid data passed to create user');
+      if (err.code === 11000) {
+        const newErr = new Error("Email already exists");
+        newErr.statusCode = CONFLICT;
+        return next(newErr);
+      }
+
+      if (err.name === "ValidationError") {
+        const newErr = new Error("Invalid data passed to create user");
         newErr.statusCode = BAD_REQUEST;
         return next(newErr);
       }
+
       return next(err);
+    });
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    const err = new Error("Email and password are required");
+    err.statusCode = BAD_REQUEST;
+    return next(err);
+  }
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      res.send({ token });
+    })
+    .catch(() => {
+      const err = new Error("Incorrect email or password");
+      err.statusCode = UNAUTHORIZED;
+      next(err);
     });
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      const err = new Error('User not found');
+      const err = new Error("User not found");
       err.statusCode = NOT_FOUND;
       throw err;
     })
@@ -52,22 +103,22 @@ module.exports.getCurrentUser = (req, res, next) => {
 };
 
 module.exports.updateProfile = (req, res, next) => {
-  const { name } = req.body;
+  const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
     req.user._id,
-    { name },
-    { new: true, runValidators: true },
+    { name, avatar },
+    { new: true, runValidators: true }
   )
     .orFail(() => {
-      const err = new Error('User not found');
+      const err = new Error("User not found");
       err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const newErr = new Error('Invalid data passed to update profile');
+      if (err.name === "ValidationError") {
+        const newErr = new Error("Invalid data passed to update profile");
         newErr.statusCode = BAD_REQUEST;
         return next(newErr);
       }
@@ -81,17 +132,17 @@ module.exports.updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .orFail(() => {
-      const err = new Error('User not found');
+      const err = new Error("User not found");
       err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const newErr = new Error('Invalid data passed to update avatar');
+      if (err.name === "ValidationError") {
+        const newErr = new Error("Invalid data passed to update avatar");
         newErr.statusCode = BAD_REQUEST;
         return next(newErr);
       }
