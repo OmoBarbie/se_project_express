@@ -73,6 +73,12 @@ module.exports.createUser = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    const err = new Error("Invalid data passed to login");
+    err.statusCode = BAD_REQUEST;
+    return next(err);
+  }
+
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
