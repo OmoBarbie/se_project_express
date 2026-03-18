@@ -21,7 +21,7 @@ app.use(auth);
 
 app.use(mainRouter);
 
-app.use((err, req, res, _next) =>
+app.use((err, req, res) =>
   res.status(err.statusCode || INTERNAL_SERVER_ERROR).send({
     message: err.message || "An error has occurred on the server.",
   })
