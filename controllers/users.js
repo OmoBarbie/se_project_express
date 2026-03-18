@@ -81,10 +81,16 @@ module.exports.login = (req, res, next) => {
 
       return res.send({ token });
     })
-    .catch(() => {
-      const err = new Error("Incorrect email or password");
-      err.statusCode = UNAUTHORIZED;
-      return next(err);
+    .catch((err) => {
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        const newErr = new Error("Invalid data passed to login");
+        newErr.statusCode = BAD_REQUEST;
+        return next(newErr);
+      }
+
+      const authErr = new Error("Incorrect email or password");
+      authErr.statusCode = UNAUTHORIZED;
+      return next(authErr);
     });
 };
 
