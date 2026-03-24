@@ -47,3 +47,8 @@ This project uses the following technologies:
 - ESLint with Airbnb configuration
 - Nodemon
 - Validator package
+
+## Project Pitch Video
+
+Check out this video https://www.loom.com/share/ecdee32da8ba40eeb58331ad66113888, where I describe my
+project and some challenges I faced while building it.
