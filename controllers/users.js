@@ -38,7 +38,13 @@ module.exports.getUser = (req, res, next) => {
 module.exports.createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
-  bcrypt
+  if (!email || !password) {
+    return res.status(BAD_REQUEST).send({
+      message: 'The "email" and "password" fields are required',
+    });
+  }
+
+  return bcrypt
     .hash(password, 10)
     .then((hash) =>
       User.create({

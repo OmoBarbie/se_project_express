@@ -25,11 +25,12 @@ app.use(auth);
 
 app.use(mainRouter);
 
-app.use((err, req, res, next) => {
-  res.status(err.statusCode || INTERNAL_SERVER_ERROR).send({
-    message: err.message || "An error has occurred on the server.",
-  });
-  return next();
+app.use((err, req, res) => {
+  const statusCode = err.statusCode || INTERNAL_SERVER_ERROR;
+  const message =
+    statusCode === 500 ? "An error has occurred on the server" : err.message;
+
+  res.status(statusCode).send({ message });
 });
 
 app.listen(PORT);
