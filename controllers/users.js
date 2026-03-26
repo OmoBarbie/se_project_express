@@ -17,24 +17,6 @@ module.exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.getUser = (req, res, next) => {
-  User.findById(req.params.userId)
-    .orFail(() => {
-      const err = new Error("User not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
-    })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === "CastError") {
-        const newErr = new Error("Invalid user id");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
-      }
-      return next(err);
-    });
-};
-
 module.exports.createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
@@ -52,7 +34,7 @@ module.exports.createUser = (req, res, next) => {
         avatar,
         email,
         password: hash,
-      })
+      }),
     )
     .then((user) => {
       const userObject = user.toObject();
@@ -94,15 +76,13 @@ module.exports.login = (req, res, next) => {
       return res.send({ token });
     })
     .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        const newErr = new Error("Invalid data passed to login");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
+      if (err.message === "Incorrect email or password") {
+        const authErr = new Error("Incorrect email or password");
+        authErr.statusCode = UNAUTHORIZED;
+        return next(authErr);
       }
 
-      const authErr = new Error("Incorrect email or password");
-      authErr.statusCode = UNAUTHORIZED;
-      return next(authErr);
+      return next(err);
     });
 };
 
@@ -123,7 +103,7 @@ module.exports.updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, avatar },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(() => {
       const err = new Error("User not found");
@@ -134,30 +114,6 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === "ValidationError") {
         const newErr = new Error("Invalid data passed to update profile");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
-      }
-      return next(err);
-    });
-};
-
-module.exports.updateAvatar = (req, res, next) => {
-  const { avatar } = req.body;
-
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    { new: true, runValidators: true }
-  )
-    .orFail(() => {
-      const err = new Error("User not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
-    })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        const newErr = new Error("Invalid data passed to update avatar");
         newErr.statusCode = BAD_REQUEST;
         return next(newErr);
       }
