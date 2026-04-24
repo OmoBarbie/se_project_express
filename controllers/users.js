@@ -1,13 +1,12 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const BadRequestError = require("../errors/bad-request-error");
+const UnauthorizedError = require("../errors/unauthorized-error");
+const NotFoundError = require("../errors/not-found-error");
+const ConflictError = require("../errors/conflict-error");
+
 const User = require("../models/user");
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  CONFLICT,
-  UNAUTHORIZED,
-} = require("../utils/errors");
 
 const { JWT_SECRET = "dev-secret" } = process.env;
 
@@ -21,9 +20,9 @@ module.exports.createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST).send({
-      message: 'The "email" and "password" fields are required',
-    });
+    return next(
+      new BadRequestError('The "email" and "password" fields are required')
+    );
   }
 
   return bcrypt
@@ -34,7 +33,7 @@ module.exports.createUser = (req, res, next) => {
         avatar,
         email,
         password: hash,
-      }),
+      })
     )
     .then((user) => {
       const userObject = user.toObject();
@@ -43,15 +42,11 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        const newErr = new Error("Email already exists");
-        newErr.statusCode = CONFLICT;
-        return next(newErr);
+        return next(new ConflictError("Email already exists"));
       }
 
       if (err.name === "ValidationError") {
-        const newErr = new Error("Invalid data passed to create user");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
+        return next(new BadRequestError("Invalid data passed to create user"));
       }
 
       return next(err);
@@ -62,9 +57,7 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    const err = new Error("Invalid data passed to login");
-    err.statusCode = BAD_REQUEST;
-    return next(err);
+    return next(new BadRequestError("Invalid data passed to login"));
   }
 
   return User.findUserByCredentials(email, password)
@@ -77,9 +70,7 @@ module.exports.login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === "Incorrect email or password") {
-        const authErr = new Error("Incorrect email or password");
-        authErr.statusCode = UNAUTHORIZED;
-        return next(authErr);
+        return next(new UnauthorizedError("Incorrect email or password"));
       }
 
       return next(err);
@@ -89,9 +80,7 @@ module.exports.login = (req, res, next) => {
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      const err = new Error("User not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError("User not found");
     })
     .then((user) => res.send(user))
     .catch(next);
@@ -103,20 +92,19 @@ module.exports.updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, avatar },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .orFail(() => {
-      const err = new Error("User not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError("User not found");
     })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        const newErr = new Error("Invalid data passed to update profile");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
+        return next(
+          new BadRequestError("Invalid data passed to update profile")
+        );
       }
+
       return next(err);
     });
 };

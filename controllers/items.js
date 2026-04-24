@@ -1,5 +1,8 @@
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, FORBIDDEN } = require("../utils/errors");
+const NotFoundError = require("../errors/not-found-error");
+
+const BadRequestError = require("../errors/bad-request-error");
+const ForbiddenError = require("../errors/forbidden-error");
 
 module.exports.getItems = (req, res, next) => {
   ClothingItem.find({})
@@ -19,9 +22,7 @@ module.exports.createItem = (req, res, next) => {
     .then((item) => res.status(201).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        const newErr = new Error("Invalid data passed to create item");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
+        return next(new BadRequestError("Invalid data passed to create item"));
       }
       return next(err);
     });
@@ -30,24 +31,19 @@ module.exports.createItem = (req, res, next) => {
 module.exports.deleteItem = (req, res, next) => {
   ClothingItem.findById(req.params.itemId)
     .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError("Item not found");
     })
+
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        const err = new Error("You can only delete your own items");
-        err.statusCode = FORBIDDEN;
-        throw err;
+        throw new ForbiddenError("You can only delete your own items");
       }
-      item.deleteOne().then(() => res.send(item));
+      return item.deleteOne().then(() => res.send(item));
     })
 
     .catch((err) => {
       if (err.name === "CastError") {
-        const newErr = new Error("Invalid item id");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
+        return next(new BadRequestError("Invalid item id"));
       }
       return next(err);
     });
@@ -60,16 +56,13 @@ module.exports.likeItem = (req, res, next) => {
     { new: true }
   )
     .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError("Item not found");
     })
+
     .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        const newErr = new Error("Invalid item id");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
+        return next(new BadRequestError("Invalid item id"));
       }
       return next(err);
     });
@@ -82,16 +75,13 @@ module.exports.dislikeItem = (req, res, next) => {
     { new: true }
   )
     .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError("Item not found");
     })
+
     .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        const newErr = new Error("Invalid item id");
-        newErr.statusCode = BAD_REQUEST;
-        return next(newErr);
+        return next(new BadRequestError("Invalid item id"));
       }
       return next(err);
     });
