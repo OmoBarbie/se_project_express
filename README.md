@@ -12,6 +12,12 @@ The backend is built with Node.js and Express and follows a RESTful API structur
 
 The server provides the following functionality.
 
+## Projecy Link
+
+https://api.tayowtwr.minecraftnoob.com/
+https://www.tayowtwr.minecraftnoob.com/
+https://tayowtwr.minecraftnoob.com/
+
 ### Users
 
 - Retrieve all users
